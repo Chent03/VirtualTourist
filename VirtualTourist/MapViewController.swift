@@ -16,6 +16,7 @@ import CoreLocation
 class MapViewController: UIViewController, MKMapViewDelegate {
     
     let regionCoord = "regionCoord"
+    var fr: NSFetchRequest<NSFetchRequestResult>!
     var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>!
     let delegate = UIApplication.shared.delegate as! AppDelegate
     var Pins = [Pin]()
@@ -32,9 +33,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         let stack = self.delegate.stack
-        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+        fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
         fr.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true),
-                              NSSortDescriptor(key: "longitude", ascending: true)]
+                              NSSortDescriptor(key: "longitude", ascending: false)]
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
         
@@ -66,18 +67,77 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         
     }
     
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        print("Hello")
+        
+        self.selectedPin(coordinates: (view.annotation?.coordinate)!) { (error, pin) in
+            
+            
+            guard error == nil else {
+                print(error!)
+                return
+            }
+            
+            guard let selectedPin = pin else {
+                print("no pin found")
+                return
+            }
+            
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
+            request.sortDescriptors = [NSSortDescriptor(key: "pin", ascending: true)]
+            let pred = NSPredicate(format: "pin = %@", argumentArray: [pin])
+            
+            let fc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
+            
+            let albumView = self.storyboard?.instantiateViewController(withIdentifier: "PhotoAlbumViewController") as! PhotoAlbumViewController
+            
+            albumView.fetchedResultsController = fc
+            albumView.pin = pin
+            
+            self.navigationController?.pushViewController(albumView, animated: true)
+            
+        }
+    
+        
+    }
+    
+    func selectedPin(coordinates: CLLocationCoordinate2D, completionHandlerForSelected: @escaping (_ error: String?, _ pin: Pin?) -> Void) {
+        
+        let latitudePred = NSPredicate(format: "latitude = %@", argumentArray: [coordinates.latitude])
+        let longitudePred = NSPredicate(format: "longitude = %@", argumentArray: [coordinates.longitude])
+        
+        let pred =  NSCompoundPredicate(type: NSCompoundPredicate.LogicalType.and, subpredicates: [latitudePred, longitudePred])
+        fr.predicate = pred
+        
+        do{
+            try fetchedResultsController.performFetch()
+        }catch{
+            print("Error in fetching")
+        }
+        
+        guard let pin = fetchedResultsController.fetchedObjects?[0] as? Pin else {
+            completionHandlerForSelected("No pin found in core data", nil)
+            return
+        }
+        print(pin.latitude)
+        
+        completionHandlerForSelected(nil, pin)
+    
+    }
+    
+   
+    
     func loadPins(){
         do{
             try self.fetchedResultsController.performFetch()
         }catch{
             print("Fetching Error")
         }
+        print(fetchedResultsController.fetchedObjects!.count)
         self.Pins = (fetchedResultsController.fetchedObjects as? [Pin])!
-        print(self.Pins.count)
         
         if !self.Pins.isEmpty {
             for pin in self.Pins {
-                print("pasting")
                 let annotation = MKPointAnnotation()
                 annotation.coordinate = CLLocationCoordinate2DMake(CLLocationDegrees(pin.latitude), CLLocationDegrees(pin.longitude))
                 self.mapView.addAnnotation(annotation)
@@ -97,34 +157,28 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     @objc func addPin(gesture: UIGestureRecognizer){
-        let point = gesture.location(in: self.mapView)
         
-        let coord = self.mapView.convert(point, toCoordinateFrom: self.mapView)
-
-        print(coord.latitude)
-        print(coord.longitude)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = coord
-        self.mapView.addAnnotation(annotation)
-        
-        self.delegate.stack.backgroundContext.perform {
+        if gesture.state == UIGestureRecognizerState.ended {
+            let point = gesture.location(in: self.mapView)
+            
+            let coord = self.mapView.convert(point, toCoordinateFrom: self.mapView)
+            
+            print(coord.latitude)
+            print(coord.longitude)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coord
+            self.mapView.addAnnotation(annotation)
+            
             
             let pin = Pin(latitude: coord.latitude, longitude: coord.longitude, context: self.fetchedResultsController.managedObjectContext)
             print("Just created a pin: \(pin)")
-
             
-            do{
-                try self.delegate.stack.backgroundContext.save()
-                print("saved")
-                try self.fetchedResultsController.performFetch()
-                self.Pins = (self.fetchedResultsController.fetchedObjects as? [Pin])!
-                print(self.Pins.count)
-            }catch{
-                fatalError("Error while saving backgroundContext: \(error)")
-            }
+            
+            self.delegate.stack.save()
+            print("saved")
+            
+            FlickrClient.sharedInstance().searchFlickr(latitude: coord.latitude, longitude: coord.longitude)
         }
-        
-        
         
     }
     

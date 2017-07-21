@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -67,6 +68,90 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="119.2" y="106.59670164917542"/>
+        </scene>
+        <!--Photo Album View Controller-->
+        <scene sceneID="LLp-6O-dV1">
+            <objects>
+                <viewController storyboardIdentifier="PhotoAlbumViewController" id="wJg-s9-78R" customClass="PhotoAlbumViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="GS0-Sa-EUo"/>
+                        <viewControllerLayoutGuide type="bottom" id="Bdd-PT-L9T"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="HH0-bf-Yg3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="kAf-bj-xJH">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="222"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="222" id="lsb-EL-Jah"/>
+                                </constraints>
+                            </mapView>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="19W-oj-6Ol">
+                                <rect key="frame" x="0.0" y="230" width="375" height="437"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="nH9-XS-6aN">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoCell" id="LFx-Kd-UcO" customClass="PhotoCell" customModule="VirtualTourist" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gTt-4D-xoi">
+                                                    <rect key="frame" x="-95" y="-39" width="240" height="128"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" secondItem="gTt-4D-xoi" secondAttribute="height" multiplier="1:1" id="ZfP-lf-inj"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="xPQ-JU-by2">
+                                                    <rect key="frame" x="15" y="15" width="20" height="20"/>
+                                                </activityIndicatorView>
+                                            </subviews>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="bottom" secondItem="gTt-4D-xoi" secondAttribute="bottom" id="0tQ-CL-44n"/>
+                                            <constraint firstAttribute="trailing" secondItem="gTt-4D-xoi" secondAttribute="trailing" id="1x7-DD-Sgu"/>
+                                            <constraint firstItem="xPQ-JU-by2" firstAttribute="centerX" secondItem="LFx-Kd-UcO" secondAttribute="centerX" id="ICN-JU-Sdz"/>
+                                            <constraint firstItem="gTt-4D-xoi" firstAttribute="leading" secondItem="LFx-Kd-UcO" secondAttribute="leading" id="Kh8-dO-wSU"/>
+                                            <constraint firstItem="gTt-4D-xoi" firstAttribute="top" secondItem="LFx-Kd-UcO" secondAttribute="top" id="bLT-5O-26n"/>
+                                            <constraint firstItem="xPQ-JU-by2" firstAttribute="centerY" secondItem="LFx-Kd-UcO" secondAttribute="centerY" id="v2f-Vd-ASx"/>
+                                        </constraints>
+                                        <connections>
+                                            <outlet property="activityIndicator" destination="xPQ-JU-by2" id="bk0-bW-c4j"/>
+                                            <outlet property="activityView" destination="xPQ-JU-by2" id="AIT-0T-xh3"/>
+                                            <outlet property="photoImage" destination="gTt-4D-xoi" id="WkN-k5-wZU"/>
+                                        </connections>
+                                    </collectionViewCell>
+                                </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="wJg-s9-78R" id="maX-Zm-yWn"/>
+                                    <outlet property="delegate" destination="wJg-s9-78R" id="VyS-6q-NGQ"/>
+                                </connections>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="kAf-bj-xJH" firstAttribute="leading" secondItem="HH0-bf-Yg3" secondAttribute="leading" id="0bz-bh-s3I"/>
+                            <constraint firstAttribute="trailing" secondItem="kAf-bj-xJH" secondAttribute="trailing" id="Ic1-2u-yjm"/>
+                            <constraint firstItem="kAf-bj-xJH" firstAttribute="top" secondItem="HH0-bf-Yg3" secondAttribute="top" id="Kzb-5b-eif"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="collectionView" destination="19W-oj-6Ol" id="ghm-mK-VdG"/>
+                        <outlet property="mapView" destination="kAf-bj-xJH" id="It3-NS-Ahx"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="r9k-LG-ZAW" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1053.5999999999999" y="103.89805097451276"/>
         </scene>
     </scenes>
 </document>
